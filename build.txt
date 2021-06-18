@@ -1,0 +1,3 @@
+displayName = Better Mod List
+author = convicted tomatophile
+version = 0.1
