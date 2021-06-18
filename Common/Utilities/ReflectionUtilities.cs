@@ -17,8 +17,9 @@ namespace BetterModList.Common.Utilities
         {
             Field,
             Property,
+            Method,
+            Constructor,
             Type,
-            Constructor
         }
 
         private static Dictionary<ReflectionType, Dictionary<string, object>> ReflectionCache =>
@@ -27,8 +28,9 @@ namespace BetterModList.Common.Utilities
                 {ReflectionType.Field, new Dictionary<string, object>()},
                 {ReflectionType.Property, new Dictionary<string, object>()},
                 {ReflectionType.Type, new Dictionary<string, object>()},
-                {ReflectionType.Constructor, new Dictionary<string, object>()}
-            };
+                {ReflectionType.Constructor, new Dictionary<string, object>()},
+                {ReflectionType.Method, new Dictionary<string, object>()}
+    };
 
         public static BindingFlags UniversalFlags => BindingFlags.Public | BindingFlags.NonPublic |
                                                      BindingFlags.Instance | BindingFlags.Static;
@@ -47,6 +49,13 @@ namespace BetterModList.Common.Utilities
         public static ConstructorInfo GetCachedConstructor(this Type type, params Type[] types) => RetrieveFromCache(
             ReflectionType.Constructor, GetConstructorNameForCache(type, types),
             () => type.GetConstructor(UniversalFlags, null, types, null));
+
+        public static MethodInfo GetCachedMethod(this Type type, string methodName) => RetrieveFromCache(
+            ReflectionType.Method, GetMethodNameForCache(type, methodName),
+            () => type.GetMethod(methodName, UniversalFlags));
+
+        public static object InvokeUnderlyingMethod(this FieldInfo field, string methodName, object fieldInstance,
+            params object[] parameters) => field.FieldType.GetCachedMethod(methodName).Invoke(field.GetValue(fieldInstance), parameters);
 
         public static string GetFieldNameForCache(Type type, string fieldName)
         {
@@ -67,7 +76,14 @@ namespace BetterModList.Common.Utilities
             string assemblyName = type.Assembly.GetName().Name;
             string typeName = type.Name;
             List<string> typeNames = types.Select(cType => cType.Name).ToList();
-            return $"{assemblyName}.{typeNames}{{{string.Join(",", typeNames)}}}";
+            return $"{assemblyName}.{typeNames}::{{{string.Join(",", typeNames)}}}";
+        }
+
+        public static string GetMethodNameForCache(Type type, string method)
+        {
+            string assemblyName = type.Assembly.GetName().Name;
+            string typeName = type.Name;
+            return $"{assemblyName}.{typeName}::{method}";
         }
 
         private static TReturn RetrieveFromCache<TReturn>(ReflectionType refType, string key, Func<TReturn> fallback)
