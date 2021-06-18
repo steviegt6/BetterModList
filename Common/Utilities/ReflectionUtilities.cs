@@ -41,7 +41,7 @@ namespace BetterModList.Common.Utilities
                 () => type.GetField(fieldName, UniversalFlags));
 
         public static PropertyInfo GetCachedProperty(this Type type, string propertyName) =>
-            RetrieveFromCache(ReflectionType.Property, GetPropertyNameForCache(type, propertyName),
+            RetrieveFromCache(ReflectionType.Property, GetCachedConstructor(type, propertyName),
                 () => type.GetProperty(propertyName, UniversalFlags));
 
         public static ConstructorInfo GetCachedConstructor(this Type type, params Type[] types) => RetrieveFromCache(
