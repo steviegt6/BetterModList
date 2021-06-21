@@ -5,11 +5,14 @@ using BetterModList.Common.Utilities;
 using BetterModList.Common.Utilities.IDs;
 using BetterModList.Content.UI.Container;
 using BetterModList.Content.UI.Elements;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.RuntimeDetour.HookGen;
 using Terraria;
-using Terraria.GameContent.UI.Elements;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
@@ -24,6 +27,8 @@ namespace BetterModList
         {
             try
             {
+                MonoModHooks.RequestNativeAccess();
+
                 IntermediateLanguageHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods").GetCachedMethod("OnInitialize"),
                     nameof(TagRemovalInitializationApplicator));
@@ -35,6 +40,16 @@ namespace BetterModList
                 IntermediateLanguageHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
                     nameof(TagRemovalModDrawApplicator));
+
+                new Hook(
+                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
+                        .GetCachedMethod("Recalculate"),
+                    GetType().GetCachedMethod(nameof(ReplaceRecalculationSizingOfEnabledText))).Apply();
+
+                new Hook(
+                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
+                        .GetCachedMethod("DrawEnabledText"),
+                    GetType().GetCachedMethod(nameof(ReplaceEnabledTextDrawing))).Apply();
 
                 ModdedInterfaceInstances.ModsMenu.SetValue(null,
                     Activator.CreateInstance(TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods")));
@@ -179,6 +194,60 @@ namespace BetterModList
                     Top = {Pixels = 5f}
                 });
             });
+        }
+
+        private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
+        {
+            orig(self);
+
+            Vector2 enabledSize =
+                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Enabled")).X, 16f);
+            Vector2 disabledSize =
+                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Disabled")).X, 16f);
+            Vector2 balancedSize = new Vector2(Math.Max(enabledSize.X, disabledSize.X), 16f);
+
+            self.Width.Set(balancedSize.X + self.PaddingLeft + self.PaddingRight, 0f);
+            self.Height.Set(balancedSize.Y + self.PaddingTop + self.PaddingBottom, 0f);
+        }
+
+        private static void ReplaceEnabledTextDrawing(Action<UIElement, SpriteBatch> orig, UIElement self,
+            SpriteBatch spriteBatch)
+        {
+            Vector2 enabledSize =
+                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Enabled")).X, 16f);
+            Vector2 disabledSize =
+                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Disabled")).X, 16f);
+            string text = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
+                .GetCachedProperty("DisplayText")
+                .GetValue(self) as string;
+            Vector2 textDims = Main.fontMouseText.MeasureString(text);
+            Vector2 drawPos = self.GetDimensions().Center() - textDims / 2f;
+
+            if (!enabledSize.X.Equals(disabledSize.X))
+            {
+                float largeSize;
+                float smallSize;
+                bool enabledLarge = enabledSize.X > disabledSize.X;
+
+                if (enabledLarge)
+                {
+                    largeSize = enabledSize.X;
+                    smallSize = disabledSize.X;
+                }
+                else
+                {
+                    largeSize = disabledSize.X;
+                    smallSize = enabledSize.X;
+                }
+
+                if (text == Language.GetTextValue("GameUI.Enabled") && !enabledLarge ||
+                    text != Language.GetTextValue("GameUI.Enabled") && enabledLarge)
+                    drawPos.X += (largeSize - smallSize) / 2f;
+            }
+
+            Utils.DrawBorderString(spriteBatch, text, drawPos,
+                (Color) TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
+                    .GetCachedProperty("DisplayColor").GetValue(self));
         }
 
         public void IntermediateLanguageHook(MethodInfo method, string modifyingName) =>
