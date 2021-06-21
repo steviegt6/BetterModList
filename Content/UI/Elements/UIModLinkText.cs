@@ -57,7 +57,16 @@ namespace BetterModList.Content.UI.Elements
         private void DrawEnabledText(SpriteBatch spriteBatch)
         {
             Vector2 pos = GetDimensions().Position() + new Vector2(PaddingLeft, PaddingTop * 0.5f);
-            Utils.DrawBorderString(spriteBatch, $"[c/ffffff:{GetDomainText()}:] {Link}", pos, Colors.RarityBlue);
+            string linkDraw = $"[c/ffffff:{GetDomainText()}:] {Link}";
+            int length = linkDraw.Length;
+
+            while (Main.fontMouseText.MeasureString(linkDraw).X > GetInnerDimensions().Width)
+                linkDraw = linkDraw.Remove(linkDraw.Length - 1);
+
+            if (linkDraw.Length < length)
+                linkDraw += "...";
+
+            Utils.DrawBorderString(spriteBatch, linkDraw, pos, Colors.RarityBlue);
         }
 
         private string GetDomainText()
