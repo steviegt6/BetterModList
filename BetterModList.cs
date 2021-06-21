@@ -27,6 +27,8 @@ namespace BetterModList
         {
             try
             {
+                LanguageManager.Instance.OnLanguageChanged += ReInitializeStaticModLoaderUserInterfaces;
+
                 MonoModHooks.RequestNativeAccess();
 
                 IntermediateLanguageHook(
@@ -62,6 +64,30 @@ namespace BetterModList
                     "\nPlease report this issue to the developer and disable the mod for the time being." +
                     $"\n\n\n\n\n\nOriginal stack-trace: {e}");
             }
+        }
+
+        private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
+        {
+            ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
+            ModdedInterfaceInstances.LoadMods.SetToNewInstance();
+            ModdedInterfaceInstances.ModSources.SetToNewInstance();
+            ModdedInterfaceInstances.BuildMod.SetToNewInstance();
+            ModdedInterfaceInstances.ErrorMessage.SetToNewInstance();
+            ModdedInterfaceInstances.ModBrowser.SetToNewInstance();
+            ModdedInterfaceInstances.ModInfo.SetToNewInstance();
+            ModdedInterfaceInstances.ManagePublished.SetToNewInstance();
+            ModdedInterfaceInstances.UpdateMessage.SetToNewInstance();
+            ModdedInterfaceInstances.InfoMessage.SetToNewInstance();
+            ModdedInterfaceInstances.EnterPassPhraseMenu.SetToNewInstance();
+            ModdedInterfaceInstances.ModPacksMenu.SetToNewInstance();
+            ModdedInterfaceInstances.EnterSteamIDMenu.SetToNewInstance();
+            ModdedInterfaceInstances.ExtractMod.SetToNewInstance();
+            ModdedInterfaceInstances.DeveloperModeHelp.SetToNewInstance();
+            ModdedInterfaceInstances.ModConfig.SetToNewInstance();
+            ModdedInterfaceInstances.ModConfigList.SetToNewInstance();
+            ModdedInterfaceInstances.CreateMod.SetToNewInstance();
+            ModdedInterfaceInstances.Progress.SetToNewInstance();
+            ModdedInterfaceInstances.DownloadProgress.SetToNewInstance();
         }
 
         private static void TagRemovalInitializationApplicator(ILContext il)

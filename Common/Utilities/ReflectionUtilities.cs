@@ -30,7 +30,7 @@ namespace BetterModList.Common.Utilities
                 {ReflectionType.Type, new Dictionary<string, object>()},
                 {ReflectionType.Constructor, new Dictionary<string, object>()},
                 {ReflectionType.Method, new Dictionary<string, object>()}
-    };
+            };
 
         public static BindingFlags UniversalFlags => BindingFlags.Public | BindingFlags.NonPublic |
                                                      BindingFlags.Instance | BindingFlags.Static;
@@ -55,7 +55,8 @@ namespace BetterModList.Common.Utilities
             () => type.GetMethod(methodName, UniversalFlags));
 
         public static object InvokeUnderlyingMethod(this FieldInfo field, string methodName, object fieldInstance,
-            params object[] parameters) => field.FieldType.GetCachedMethod(methodName).Invoke(field.GetValue(fieldInstance), parameters);
+            params object[] parameters) => field.FieldType.GetCachedMethod(methodName)
+            .Invoke(field.GetValue(fieldInstance), parameters);
 
         public static string GetFieldNameForCache(Type type, string fieldName)
         {
@@ -114,5 +115,9 @@ namespace BetterModList.Common.Utilities
 
         public static PropertyInfo GetCachedProperty<TType>(string propertyName) =>
             typeof(TType).GetCachedProperty(propertyName);
+
+        public static void SetToNewInstance(this FieldInfo field, object fieldInstance = null,
+            object constructedInstance = null) => field.SetValue(fieldInstance,
+            constructedInstance ?? Activator.CreateInstance(field.FieldType));
     }
 }
