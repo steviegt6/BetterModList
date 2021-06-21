@@ -12,6 +12,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.RuntimeDetour.HookGen;
 using Terraria;
+using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
@@ -53,8 +54,11 @@ namespace BetterModList
                         .GetCachedMethod("DrawEnabledText"),
                     GetType().GetCachedMethod(nameof(ReplaceEnabledTextDrawing))).Apply();
 
-                ModdedInterfaceInstances.ModsMenu.SetValue(null,
-                    Activator.CreateInstance(TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods")));
+                new Hook(
+                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
+                    GetType().GetCachedMethod(nameof(AppendHomepageLinkAndMessWithInitialization))).Apply();
+
+                ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
             }
             catch (Exception e)
             {
@@ -62,7 +66,7 @@ namespace BetterModList
                     "Unfortunately, an exception was thrown while attempting to apply patches to rework some aspects of tModLoader's UI." +
                     "\nThis is caused by the Better Mods List mod." +
                     "\nPlease report this issue to the developer and disable the mod for the time being." +
-                    $"\n\n\n\n\n\nOriginal stack-trace: {e}");
+                    $"\n\n\nOriginal stack-trace: {e}");
             }
         }
 
@@ -274,6 +278,40 @@ namespace BetterModList
             Utils.DrawBorderString(spriteBatch, text, drawPos,
                 (Color) TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
                     .GetCachedProperty("DisplayColor").GetValue(self));
+        }
+
+        private static void AppendHomepageLinkAndMessWithInitialization(Action<UIElement> orig, UIElement self)
+        {
+            orig(self);
+
+            Type localMod = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
+            Type buildProperties = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
+            Type uiModItem = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
+
+            uiModItem.GetCachedField("_uiModStateText").GetValue<UIElement>(self).Top.Pixels += 5f;
+
+            if (uiModItem.GetCachedField("_modReferenceIcon").GetValue(self) != null) 
+                uiModItem.GetCachedField("_modReferenceIcon").GetValue<UIImage>(self).Top.Pixels += 5f;
+
+            string homepage = buildProperties.GetCachedField("homepage").GetValue<string>(localMod.GetCachedField("properties")
+                .GetValue(uiModItem.GetCachedField("_mod").GetValue(self)));
+
+            if (string.IsNullOrEmpty(homepage))
+                return;
+
+            self.Height.Pixels += 45f;
+
+            self.Append(new UIModLinkText(homepage)
+            {
+                Top =
+                {
+                    Pixels = 95f
+                },
+                Width =
+                {
+                    Percent = 1f
+                }
+            });
         }
 
         public void IntermediateLanguageHook(MethodInfo method, string modifyingName) =>

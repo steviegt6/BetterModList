@@ -119,5 +119,13 @@ namespace BetterModList.Common.Utilities
         public static void SetToNewInstance(this FieldInfo field, object fieldInstance = null,
             object constructedInstance = null) => field.SetValue(fieldInstance,
             constructedInstance ?? Activator.CreateInstance(field.FieldType));
+
+        public static void SetToNewInstance(this PropertyInfo property, object propertyInstance = null,
+            object constructedInstance = null) => property.SetValue(propertyInstance,
+            constructedInstance ?? Activator.CreateInstance(property.PropertyType));
+
+        public static T GetValue<T>(this FieldInfo field, object fieldInstance) => (T) field.GetValue(fieldInstance);
+
+        public static T GetValue<T>(this PropertyInfo property, object propertyInstance) => (T)property.GetValue(propertyInstance);
     }
 }
