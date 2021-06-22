@@ -223,7 +223,7 @@ namespace BetterModList
                 Type buildPropertiesType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
                 FieldInfo textPanel = modItemType.GetCachedField("_modName");
                 float textHeight = Main.fontMouseText.MeasureString("A").Y;
-                
+
                 modItemType.GetCachedField("_modIconAdjust").SetValue(modItem, 85);
 
                 StyleDimension iconAdjust =
@@ -308,10 +308,16 @@ namespace BetterModList
                 modItemType.GetCachedField("_modIcon").SetValue(modItem, icon);
             });
 
+            // remove browser key
             c.Index = 0;
             c.GotoNext(x => x.MatchStfld("Terraria.ModLoader.UI.UIModItem", "_keyImage"));
             c.Index++;
             c.RemoveRange(4);
+
+            // remove improper unloaded icon
+            c.GotoNext(x => x.MatchStfld("Terraria.ModLoader.UI.UIModItem", "_keyImage"));
+            c.Index++;
+            c.RemoveRange(18);
         }
 
         private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
