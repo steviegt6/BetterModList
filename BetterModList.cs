@@ -223,12 +223,11 @@ namespace BetterModList
                 Type buildPropertiesType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
                 FieldInfo textPanel = modItemType.GetCachedField("_modName");
                 float textHeight = Main.fontMouseText.MeasureString("A").Y;
-
+                
                 modItemType.GetCachedField("_modIconAdjust").SetValue(modItem, 85);
 
                 StyleDimension iconAdjust =
                     new StyleDimension(modItemType.GetCachedField("_modIconAdjust").GetValue<int>(modItem), 0f);
-
 
                 UITextModName name = new UITextModName((
                     localModType.GetCachedProperty("DisplayName")
