@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using BetterModList.Common.Utilities;
@@ -16,6 +17,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
 using Terraria.UI.Chat;
@@ -221,8 +223,12 @@ namespace BetterModList
                 Type buildPropertiesType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
                 FieldInfo textPanel = modItemType.GetCachedField("_modName");
                 float textHeight = Main.fontMouseText.MeasureString("A").Y;
+
+                modItemType.GetCachedField("_modIconAdjust").SetValue(modItem, 85);
+
                 StyleDimension iconAdjust =
                     new StyleDimension(modItemType.GetCachedField("_modIconAdjust").GetValue<int>(modItem), 0f);
+
 
                 UITextModName name = new UITextModName((
                     localModType.GetCachedProperty("DisplayName")
@@ -269,6 +275,39 @@ namespace BetterModList
             c.Index++;
             c.Emit(OpCodes.Pop);
             c.Emit(OpCodes.Ldc_I4_0);
+
+            // insert at beginning because LAZY lol
+            c.Index = 0;
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Action<UIElement>>(modItem =>
+            {
+                Type modItemType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
+                Type localModType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
+
+                TmodFile file = localModType.GetCachedField("modFile")
+                    .GetValue<TmodFile>(modItemType.GetCachedField("_mod").GetValue(modItem));
+
+                if (file.HasFile("icon.png"))
+                {
+                    using (file.Open())
+                    using (Stream stream = file.GetStream("icon.png"))
+                    {
+                        Texture2D temp = Texture2D.FromStream(Main.instance.GraphicsDevice, stream);
+
+                        if (temp.Width == 80 && temp.Height == 80)
+                            return;
+                    }
+                }
+
+                UIImage icon = new UIImage(ModContent.GetTexture("BetterModList/Assets/UI/NoIcon"))
+                {
+                    Left = {Percent = 0f},
+                    Top = {Percent = 0f}
+                };
+
+                modItem.Append(icon);
+                modItemType.GetCachedField("_modIcon").SetValue(modItem, icon);
+            });
         }
 
         private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
