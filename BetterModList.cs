@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using BetterModList.Common.Utilities;
 using BetterModList.Common.Utilities.IDs;
@@ -17,6 +18,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
+using Terraria.UI.Chat;
 
 namespace BetterModList
 {
@@ -57,6 +59,10 @@ namespace BetterModList
                 new Hook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
                     GetType().GetCachedMethod(nameof(AppendHomepageLinkAndMessWithInitialization))).Apply();
+
+                IntermediateLanguageHook(
+                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("DrawSelf"),
+                    nameof(ShoveDividerDown));
 
                 ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
             }
@@ -208,21 +214,61 @@ namespace BetterModList
             c.GotoNext(x => x.MatchLdfld("Terraria.ModLoader.UI.UIModItem", "_modName"));
 
             c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Action<object>>(modItem =>
+            c.EmitDelegate<Action<UIElement>>(modItem =>
             {
                 Type modItemType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
                 Type localModType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
+                Type buildPropertiesType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
                 FieldInfo textPanel = modItemType.GetCachedField("_modName");
+                float textHeight = Main.fontMouseText.MeasureString("A").Y;
+                StyleDimension iconAdjust =
+                    new StyleDimension(modItemType.GetCachedField("_modIconAdjust").GetValue<int>(modItem), 0f);
 
-                textPanel.SetValue(modItem, new UITextModName((
+                UITextModName name = new UITextModName((
                     localModType.GetCachedProperty("DisplayName")
-                        .GetValue(modItemType.GetCachedField("_mod").GetValue(modItem)) as string,
-                    modItemType.GetCachedField("DisplayNameClean").GetValue(modItem) as string))
+                        .GetValue<string>(modItemType.GetCachedField("_mod").GetValue(modItem)),
+                    modItemType.GetCachedField("DisplayNameClean").GetValue<string>(modItem)))
                 {
-                    Left = new StyleDimension((int) modItemType.GetCachedField("_modIconAdjust").GetValue(modItem), 0f),
+                    Left = iconAdjust,
                     Top = {Pixels = 5f}
-                });
+                };
+
+                textPanel.SetValue(modItem, name);
+
+                UIText authorText =
+                    new UIText("by " + buildPropertiesType.GetCachedField("author")
+                        .GetValue<string>(localModType.GetCachedField("properties")
+                            .GetValue(modItemType.GetCachedField("_mod").GetValue(modItem))))
+                    {
+                        TextColor = Color.DarkGray,
+                        Left = iconAdjust,
+                        Top = {Pixels = 5f + textHeight}
+                    };
+
+                UIText versionText =
+                    new UIText("v" + buildPropertiesType.GetCachedField("version")
+                        .GetValue<Version>(localModType.GetCachedField("properties")
+                            .GetValue(modItemType.GetCachedField("_mod").GetValue(modItem))))
+                    {
+                        TextColor = Color.Goldenrod,
+                        Left = iconAdjust,
+                        Top = {Pixels = 5f}
+                    };
+
+                Main.spriteBatch.Begin();
+                versionText.Left.Pixels += 8f + ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch,
+                    Main.fontMouseText, name.Text, new Vector2(0), Color.White, 0f, Vector2.Zero, Vector2.One).X;
+                Main.spriteBatch.End();
+
+                modItem.Append(authorText);
+                modItem.Append(versionText);
             });
+
+            c.Index = 0;
+            c.GotoNext(x => x.MatchLdcI4(85));
+            c.Index++;
+            c.Emit(OpCodes.Pop);
+            c.Emit(OpCodes.Ldc_I4_0);
         }
 
         private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
@@ -293,23 +339,54 @@ namespace BetterModList
             string homepage = buildProperties.GetCachedField("homepage").GetValue<string>(localMod
                 .GetCachedField("properties")
                 .GetValue(uiModItem.GetCachedField("_mod").GetValue(self)));
+            float extended = Main.fontMouseText.MeasureString("A").Y;
 
-            if (string.IsNullOrEmpty(homepage))
-                return;
+            self.Height.Pixels += extended;
 
-            self.Height.Pixels += 45f;
-
-            self.Append(new UIModLinkText(homepage)
+            if (!string.IsNullOrEmpty(homepage))
             {
-                Top =
+                self.Height.Pixels += 45f;
+
+                self.Append(new UIModLinkText(homepage)
                 {
-                    Pixels = 95f
-                },
-                Width =
-                {
-                    Percent = 1f
-                }
-            });
+                    Top =
+                    {
+                        Pixels = 95f + extended
+                    },
+                    Width =
+                    {
+                        Percent = 1f
+                    }
+                });
+            }
+
+            string[] fields =
+            {
+                "_moreInfoButton",
+                "_keyImage",
+                "_configButton",
+                "_uiModStateText",
+                "_modReferenceIcon"
+            };
+
+            foreach (string field in fields.Where(x => uiModItem.GetCachedField(x).GetValue(self) != null))
+                uiModItem.GetCachedField(field).GetValue<UIElement>(self).Top.Pixels += extended;
+        }
+
+        private static void ShoveDividerDown(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+            float extended = Main.fontMouseText.MeasureString("A").Y;
+
+            c.GotoNext(x => x.MatchLdcR4(30f));
+            c.Index++;
+            c.Emit(OpCodes.Pop);
+            c.Emit(OpCodes.Ldc_R4, 30f + extended);
+
+            c.GotoNext(x => x.MatchLdcR4(45f));
+            c.Index++;
+            c.Emit(OpCodes.Pop);
+            c.Emit(OpCodes.Ldc_R4, 45f + extended);
         }
 
         public void IntermediateLanguageHook(MethodInfo method, string modifyingName) =>

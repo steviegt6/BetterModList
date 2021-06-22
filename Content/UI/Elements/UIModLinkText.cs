@@ -34,8 +34,9 @@ namespace BetterModList.Content.UI.Elements
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
+            float extended = Main.fontMouseText.MeasureString("A").Y;
             spriteBatch.Draw(
-                position: new Vector2(Parent.GetInnerDimensions().X + 5f, Parent.GetInnerDimensions().Y + 85f),
+                position: new Vector2(Parent.GetInnerDimensions().X + 5f, Parent.GetInnerDimensions().Y + 85f + extended),
                 texture: UICommon.DividerTexture, sourceRectangle: null, color: Color.White, rotation: 0f,
                 origin: Vector2.Zero, scale: new Vector2((Parent.GetInnerDimensions().Width - 10f) / 8f, 1f),
                 effects: SpriteEffects.None, layerDepth: 0f);
