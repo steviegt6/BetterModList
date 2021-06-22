@@ -87,6 +87,8 @@ namespace BetterModList
 
             foreach (Hook hook in DetoursToRemove)
                 hook.Undo();
+
+            ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
         }
 
         private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
