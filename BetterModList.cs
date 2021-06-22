@@ -331,7 +331,7 @@ namespace BetterModList
                 new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Disabled")).X, 16f);
             string text = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
                 .GetCachedProperty("DisplayText")
-                .GetValue(self) as string;
+                .GetValue<string>(self);
             Vector2 textDims = Main.fontMouseText.MeasureString(text);
             Vector2 drawPos = self.GetDimensions().Center() - textDims / 2f;
 
