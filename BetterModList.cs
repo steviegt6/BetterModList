@@ -150,7 +150,6 @@ namespace BetterModList
             c.Emit(OpCodes.Ldloc_0); // switch case index
             c.EmitDelegate<Func<object, int, string>>((instance, index) =>
             {
-                object menuInstance = ModdedInterfaceInstances.ModsMenu.GetValue(null);
                 Type menuType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods");
                 Type sortExtensions =
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.ModsMenuSortModesExtensions");
@@ -240,8 +239,7 @@ namespace BetterModList
             self.Height.Set(balancedSize.Y + self.PaddingTop + self.PaddingBottom, 0f);
         }
 
-        private static void ReplaceEnabledTextDrawing(Action<UIElement, SpriteBatch> orig, UIElement self,
-            SpriteBatch spriteBatch)
+        private static void ReplaceEnabledTextDrawing(UIElement self, SpriteBatch spriteBatch)
         {
             Vector2 enabledSize =
                 new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Enabled")).X, 16f);
@@ -283,17 +281,17 @@ namespace BetterModList
         private static void AppendHomepageLinkAndMessWithInitialization(Action<UIElement> orig, UIElement self)
         {
             orig(self);
-
             Type localMod = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
             Type buildProperties = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
             Type uiModItem = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
 
             uiModItem.GetCachedField("_uiModStateText").GetValue<UIElement>(self).Top.Pixels += 5f;
 
-            if (uiModItem.GetCachedField("_modReferenceIcon").GetValue(self) != null) 
+            if (uiModItem.GetCachedField("_modReferenceIcon").GetValue(self) != null)
                 uiModItem.GetCachedField("_modReferenceIcon").GetValue<UIImage>(self).Top.Pixels += 5f;
 
-            string homepage = buildProperties.GetCachedField("homepage").GetValue<string>(localMod.GetCachedField("properties")
+            string homepage = buildProperties.GetCachedField("homepage").GetValue<string>(localMod
+                .GetCachedField("properties")
                 .GetValue(uiModItem.GetCachedField("_mod").GetValue(self)));
 
             if (string.IsNullOrEmpty(homepage))

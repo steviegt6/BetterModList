@@ -56,11 +56,13 @@ namespace BetterModList.Content.UI.Elements
 
         private void DrawEnabledText(SpriteBatch spriteBatch)
         {
+            const float padding = 26f;
             Vector2 pos = GetDimensions().Position() + new Vector2(PaddingLeft, PaddingTop * 0.5f);
+            float buffer = Main.fontMouseText.MeasureString("[c/ffffff:]").X;
             string linkDraw = $"[c/ffffff:{GetDomainText()}:] {Link}";
             int length = linkDraw.Length;
 
-            while (Main.fontMouseText.MeasureString(linkDraw).X > GetInnerDimensions().Width)
+            while (Main.fontMouseText.MeasureString(linkDraw).X + padding > GetInnerDimensions().Width + buffer)
                 linkDraw = linkDraw.Remove(linkDraw.Length - 1);
 
             if (linkDraw.Length < length)
