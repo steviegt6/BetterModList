@@ -27,6 +27,8 @@ namespace BetterModList
     public class BetterModList : Mod
     {
         private static readonly Assembly TerrariaAssembly = typeof(Main).Assembly;
+        private static readonly List<(MethodInfo, Delegate)> DelegatesToRemove = new List<(MethodInfo, Delegate)>();
+        private static readonly List<Hook> DetoursToRemove = new List<Hook>();
 
         public override void Load()
         {
@@ -48,19 +50,19 @@ namespace BetterModList
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
                     nameof(TagRemovalModDrawApplicator));
 
-                new Hook(
+                DetourHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
                         .GetCachedMethod("Recalculate"),
-                    GetType().GetCachedMethod(nameof(ReplaceRecalculationSizingOfEnabledText))).Apply();
+                    GetType().GetCachedMethod(nameof(ReplaceRecalculationSizingOfEnabledText)));
 
-                new Hook(
+                DetourHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
                         .GetCachedMethod("DrawEnabledText"),
-                    GetType().GetCachedMethod(nameof(ReplaceEnabledTextDrawing))).Apply();
+                    GetType().GetCachedMethod(nameof(ReplaceEnabledTextDrawing)));
 
-                new Hook(
+                DetourHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
-                    GetType().GetCachedMethod(nameof(AppendHomepageLinkAndMessWithInitialization))).Apply();
+                    GetType().GetCachedMethod(nameof(AppendHomepageLinkAndMessWithInitialization)));
 
                 IntermediateLanguageHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("DrawSelf"),
@@ -76,6 +78,15 @@ namespace BetterModList
                     "\nPlease report this issue to the developer and disable the mod for the time being." +
                     $"\n\n\nOriginal stack-trace: {e}");
             }
+        }
+
+        public override void Unload()
+        {
+            foreach ((MethodInfo method, Delegate @delegate) in DelegatesToRemove)
+                HookEndpointManager.Unmodify(method, @delegate);
+
+            foreach (Hook hook in DetoursToRemove)
+                hook.Undo();
         }
 
         private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
@@ -199,19 +210,6 @@ namespace BetterModList
         private static void TagRemovalModDrawApplicator(ILContext il)
         {
             ILCursor c = new ILCursor(il);
-            /*c.GotoNext(x => x.MatchCallvirt("Terraria.ModLoader.Core.LocalMod", "get_DisplayName"));
-            c.Remove();
-
-            c.Emit(OpCodes.Ldarg_0);
-            c.EmitDelegate<Func<object, object, string>>((localMod, instance) =>
-            {
-                Type modItemType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
-                Type localModType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
-
-                return UIModsFieldContainer.DisableChatTags
-                    ? modItemType.GetCachedField("DisplayNameClean").GetValue(instance) as string
-                    : localModType.GetCachedProperty("DisplayName").GetValue(localMod) as string;
-            });*/
 
             c.GotoNext(x => x.MatchLdfld("Terraria.ModLoader.UI.UIModItem", "_modName"));
 
@@ -428,8 +426,18 @@ namespace BetterModList
             c.Emit(OpCodes.Ldc_R4, 45f + extended);
         }
 
-        public void IntermediateLanguageHook(MethodInfo method, string modifyingName) =>
-            HookEndpointManager.Modify(method,
-                Delegate.CreateDelegate(typeof(ILContext.Manipulator), GetType(), modifyingName));
+        public void IntermediateLanguageHook(MethodInfo method, string modifyingName)
+        {
+            Delegate @delegate = Delegate.CreateDelegate(typeof(ILContext.Manipulator), GetType(), modifyingName);
+            DelegatesToRemove.Add((method, @delegate));
+            HookEndpointManager.Modify(method, @delegate);
+        }
+
+        public static void DetourHook(MethodInfo method, MethodInfo modifyingMethod)
+        {
+            Hook hook = new Hook(method, modifyingMethod);
+            DetoursToRemove.Add(hook);
+            hook.Apply();
+        }
     }
 }
