@@ -228,10 +228,12 @@ namespace BetterModList
 
                 StyleDimension iconAdjust =
                     new StyleDimension(modItemType.GetCachedField("_modIconAdjust").GetValue<int>(modItem), 0f);
+                object modInstance = modItemType.GetCachedField("_mod").GetValue(modItem);
+                object properties = localModType.GetCachedField("properties").GetValue(modInstance);
 
                 UITextModName name = new UITextModName((
                     localModType.GetCachedProperty("DisplayName")
-                        .GetValue<string>(modItemType.GetCachedField("_mod").GetValue(modItem)),
+                        .GetValue<string>(modInstance),
                     modItemType.GetCachedField("DisplayNameClean").GetValue<string>(modItem)))
                 {
                     Left = iconAdjust,
@@ -242,8 +244,7 @@ namespace BetterModList
 
                 UIText authorText =
                     new UIText("by " + buildPropertiesType.GetCachedField("author")
-                        .GetValue<string>(localModType.GetCachedField("properties")
-                            .GetValue(modItemType.GetCachedField("_mod").GetValue(modItem))))
+                        .GetValue<string>(properties))
                     {
                         TextColor = Color.DarkGray,
                         Left = iconAdjust,
@@ -252,8 +253,7 @@ namespace BetterModList
 
                 UIText versionText =
                     new UIText("v" + buildPropertiesType.GetCachedField("version")
-                        .GetValue<Version>(localModType.GetCachedField("properties")
-                            .GetValue(modItemType.GetCachedField("_mod").GetValue(modItem))))
+                        .GetValue<Version>(properties))
                     {
                         TextColor = Color.Goldenrod,
                         Left = iconAdjust,
@@ -307,6 +307,11 @@ namespace BetterModList
                 modItem.Append(icon);
                 modItemType.GetCachedField("_modIcon").SetValue(modItem, icon);
             });
+
+            c.Index = 0;
+            c.GotoNext(x => x.MatchStfld("Terraria.ModLoader.UI.UIModItem", "_keyImage"));
+            c.Index++;
+            c.RemoveRange(4);
         }
 
         private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
@@ -397,6 +402,25 @@ namespace BetterModList
                     }
                 });
             }
+
+            Type modItemType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem");
+            Type localModType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.LocalMod");
+            Type buildPropertiesType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.Core.BuildProperties");
+            object modInstance = modItemType.GetCachedField("_mod").GetValue(self);
+            object properties = localModType.GetCachedField("properties").GetValue(modInstance);
+            TmodFile file = localModType.GetCachedField("modFile").GetValue<TmodFile>(modInstance);
+            UIModKeyImage keyImage;
+
+            if (file.GetPropertyValue<TmodFile, bool>("ValidModBrowserSignature"))
+                keyImage = new UIModKeyImage(Language.GetTextValue("tModLoader.ModsOriginatedFromModBrowser"), UIModKeyImage.KeyType.ModBrowser);
+            else if (buildPropertiesType.GetCachedField("beta").GetValue<bool>(properties))
+                keyImage = new UIModKeyImage("Built on a beta version of tModLoader", UIModKeyImage.KeyType.Beta);
+            else
+                keyImage = new UIModKeyImage("Unknown place of origin");
+
+            keyImage.Left.Pixels = 85f / 2f - keyImage.KeyTexture.Width / 2f;
+            keyImage.Top.Pixels = 74f + keyImage.KeyTexture.Height / 2f;
+            self.Append(keyImage);
 
             string[] fields =
             {
