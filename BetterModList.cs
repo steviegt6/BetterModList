@@ -1,17 +1,54 @@
+using BetterModList.Common.Utilities.IDs;
+using Terraria.Localization;
 using TomatoLib;
+using TomatoLib.Core.Utilities.Extensions;
 
 namespace BetterModList
 {
     public class BetterModList : TomatoMod
     {
+        public override void Load()
+        {
+            base.Load();
+
+            LanguageManager.Instance.OnLanguageChanged += ReInitializeStaticModLoaderUserInterfaces;
+        }
+
+        public override void Unload()
+        {
+            base.Unload();
+
+            LanguageManager.Instance.OnLanguageChanged -= ReInitializeStaticModLoaderUserInterfaces;
+
+            ModdedInterfaceInstances.ModsMenu.ReplaceInfoInstance();
+        }
+
+        private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
+        {
+            ModdedInterfaceInstances.ModsMenu.ReplaceInfoInstance();
+            ModdedInterfaceInstances.LoadMods.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModSources.ReplaceInfoInstance();
+            ModdedInterfaceInstances.BuildMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ErrorMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModBrowser.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModInfo.ReplaceInfoInstance();
+            ModdedInterfaceInstances.UpdateMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.InfoMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModPacksMenu.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ExtractMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.DeveloperModeHelp.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModConfig.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModConfigList.ReplaceInfoInstance();
+            ModdedInterfaceInstances.CreateMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.Progress.ReplaceInfoInstance();
+            ModdedInterfaceInstances.DownloadProgress.ReplaceInfoInstance();
+        }
         /*private static readonly Assembly TerrariaAssembly = typeof(Main).Assembly;
 
         public override void Load()
         {
             try
             {
-                LanguageManager.Instance.OnLanguageChanged += ReInitializeStaticModLoaderUserInterfaces;
-
                 MonoModHooks.RequestNativeAccess();
 
                 IntermediateLanguageHook(
@@ -54,38 +91,6 @@ namespace BetterModList
                     "\nPlease report this issue to the developer and disable the mod for the time being." +
                     $"\n\n\nOriginal stack-trace: {e}");
             }
-        }
-
-        public override void Unload()
-        {
-            foreach ((MethodInfo method, Delegate @delegate) in DelegatesToRemove)
-                HookEndpointManager.Unmodify(method, @delegate);
-
-            foreach (Hook hook in DetoursToRemove)
-                hook.Undo();
-
-            ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
-        }
-
-        private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
-        {
-            ModdedInterfaceInstances.ModsMenu.ReplaceInfoInstance();
-            ModdedInterfaceInstances.LoadMods.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModSources.ReplaceInfoInstance();
-            ModdedInterfaceInstances.BuildMod.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ErrorMessage.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModBrowser.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModInfo.ReplaceInfoInstance();
-            ModdedInterfaceInstances.UpdateMessage.ReplaceInfoInstance();
-            ModdedInterfaceInstances.InfoMessage.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModPacksMenu.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ExtractMod.ReplaceInfoInstance();
-            ModdedInterfaceInstances.DeveloperModeHelp.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModConfig.ReplaceInfoInstance();
-            ModdedInterfaceInstances.ModConfigList.ReplaceInfoInstance();
-            ModdedInterfaceInstances.CreateMod.ReplaceInfoInstance();
-            ModdedInterfaceInstances.Progress.ReplaceInfoInstance();
-            ModdedInterfaceInstances.DownloadProgress.ReplaceInfoInstance();
         }
 
         private static void TagRemovalInitializationApplicator(ILContext il)
