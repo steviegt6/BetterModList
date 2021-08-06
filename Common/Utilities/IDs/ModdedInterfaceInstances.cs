@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Terraria.ModLoader;
+using TomatoLib.Core.Utilities.Extensions;
 
 namespace BetterModList.Common.Utilities.IDs
 {
@@ -26,17 +27,11 @@ namespace BetterModList.Common.Utilities.IDs
 
         public static FieldInfo ModInfo => InterfaceType.GetCachedField("modInfo");
 
-        public static FieldInfo ManagePublished => InterfaceType.GetCachedField("managePublished");
-
         public static FieldInfo UpdateMessage => InterfaceType.GetCachedField("updateMessage");
 
         public static FieldInfo InfoMessage => InterfaceType.GetCachedField("infoMessage");
 
-        public static FieldInfo EnterPassPhraseMenu => InterfaceType.GetCachedField("enterPassphraseMenu");
-
         public static FieldInfo ModPacksMenu => InterfaceType.GetCachedField("modPacksMenu");
-
-        public static FieldInfo EnterSteamIDMenu => InterfaceType.GetCachedField("enterSteamIDMenu");
 
         public static FieldInfo ExtractMod => InterfaceType.GetCachedField("extractMod");
 
