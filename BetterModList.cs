@@ -418,7 +418,7 @@ namespace BetterModList
             UIModKeyImage keyImage;
 
             if (file.GetPropertyValue<TmodFile, bool>("ValidModBrowserSignature"))
-                keyImage = new UIModKeyImage(Language.GetTextValue("tModLoader.ModsOriginatedFromModBrowser"), UIModKeyImage.KeyType.ModBrowser);
+                keyImage = new UIModKeyImage(Language.GetTextValue("tModLoader.ModsOriginatedFromModBrowser"), UIModKeyImage.KeyType.Workshop);
             else if (buildPropertiesType.GetCachedField("beta").GetValue<bool>(properties))
                 keyImage = new UIModKeyImage("Built on a beta version of tModLoader", UIModKeyImage.KeyType.Beta);
             else

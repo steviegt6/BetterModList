@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
@@ -12,14 +13,13 @@ namespace BetterModList.Content.UI.Elements
     {
         public enum KeyType
         {
-            ModBrowser,
-            Beta,
+            Workshop,
             Unknown
         }
 
         public KeyType ImageKeyType { get; protected set; }
 
-        public Texture2D KeyTexture { get; protected set; }
+        public Asset<Texture2D> KeyTexture { get; protected set; }
 
         public string HoverText { get; protected set; }
 
@@ -35,23 +35,29 @@ namespace BetterModList.Content.UI.Elements
         {
             ImageKeyType = imageKeyType;
             KeyTexture = GetImageFromKeyType(ImageKeyType);
-            Width.Set(KeyTexture.Width, 0f);
-            Height.Set(KeyTexture.Height, 0f);
+            Width.Set(KeyTexture.Width(), 0f);
+            Height.Set(KeyTexture.Height(), 0f);
         }
 
         public virtual void SetKeyType(KeyType imageKeyType) => InternalSetKeyType(imageKeyType);
 
         protected void InternalSetText(string hoverText) => HoverText = hoverText;
 
-        public virtual void SetText(string hoverText) => HoverText = hoverText;
+        public virtual void SetText(string hoverText) => InternalSetText(hoverText);
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);
 
-            spriteBatch.Draw(position: GetDimensions().Position() + KeyTexture.Size() * (1f - 1f) / 2f, texture: KeyTexture,
-                sourceRectangle: null, color: Color.White, rotation: 0f, origin: Vector2.Zero, scale: 1f,
-                effects: SpriteEffects.None, layerDepth: 0f);
+            spriteBatch.Draw(position: GetDimensions().Position() + KeyTexture.Size() * (1f - 1f) / 2f,
+                texture: KeyTexture.Value,
+                sourceRectangle: null,
+                color: Color.White,
+                rotation: 0f,
+                origin: Vector2.Zero,
+                scale: 1f,
+                effects: SpriteEffects.None,
+                layerDepth: 0f);
 
             if (!IsMouseHovering)
                 return;
@@ -60,22 +66,16 @@ namespace BetterModList.Content.UI.Elements
             UICommon.DrawHoverStringInBounds(spriteBatch, HoverText, Parent.GetDimensions().ToRectangle());
         }
 
-        public static Texture2D GetImageFromKeyType(KeyType keyType)
+        public static Asset<Texture2D> GetImageFromKeyType(KeyType keyType)
         {
-            switch (keyType)
+            return keyType switch
             {
-                case KeyType.ModBrowser:
-                    return ModContent.GetTexture("BetterModList/Assets/UI/Key_ModBrowser");
-
-                case KeyType.Beta:
-                    return ModContent.GetTexture("BetterModList/Assets/UI/Key_Beta");
-
-                case KeyType.Unknown:
-                    return ModContent.GetTexture("BetterModList/Assets/UI/Key_Unknown");
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                KeyType.Workshop => ModContent.Request<Texture2D>("BetterModList/Assets/UI/Key_ModBrowser",
+                    AssetRequestMode.ImmediateLoad),
+                KeyType.Unknown => ModContent.Request<Texture2D>("BetterModList/Assets/UI/Key_Unknown",
+                    AssetRequestMode.ImmediateLoad),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }
