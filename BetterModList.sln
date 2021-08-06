@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		description.txt = description.txt
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TomatoLib", "TomatoLib\TomatoLib.csproj", "{22A944D8-593E-441E-A2CC-92B211F74DE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{79F72615-0E75-44F0-8095-59C049C396C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79F72615-0E75-44F0-8095-59C049C396C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79F72615-0E75-44F0-8095-59C049C396C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22A944D8-593E-441E-A2CC-92B211F74DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22A944D8-593E-441E-A2CC-92B211F74DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22A944D8-593E-441E-A2CC-92B211F74DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22A944D8-593E-441E-A2CC-92B211F74DE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

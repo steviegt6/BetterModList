@@ -1,3 +1,5 @@
 displayName = Better Mod List
-author = convicted tomatophile
-version = 1.0.0
+author = Tomat
+version = 1.0.0.0
+modReferences = TomatoLib
+sortAfter = TomatLib
