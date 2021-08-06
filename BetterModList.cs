@@ -21,6 +21,7 @@ using Terraria.ModLoader.Core;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
 using Terraria.UI.Chat;
+using TomatoLib.Core.Utilities.Extensions;
 
 namespace BetterModList
 {
@@ -93,26 +94,23 @@ namespace BetterModList
 
         private static void ReInitializeStaticModLoaderUserInterfaces(LanguageManager languageManager)
         {
-            ModdedInterfaceInstances.ModsMenu.SetToNewInstance();
-            ModdedInterfaceInstances.LoadMods.SetToNewInstance();
-            ModdedInterfaceInstances.ModSources.SetToNewInstance();
-            ModdedInterfaceInstances.BuildMod.SetToNewInstance();
-            ModdedInterfaceInstances.ErrorMessage.SetToNewInstance();
-            ModdedInterfaceInstances.ModBrowser.SetToNewInstance();
-            ModdedInterfaceInstances.ModInfo.SetToNewInstance();
-            ModdedInterfaceInstances.ManagePublished.SetToNewInstance();
-            ModdedInterfaceInstances.UpdateMessage.SetToNewInstance();
-            ModdedInterfaceInstances.InfoMessage.SetToNewInstance();
-            ModdedInterfaceInstances.EnterPassPhraseMenu.SetToNewInstance();
-            ModdedInterfaceInstances.ModPacksMenu.SetToNewInstance();
-            ModdedInterfaceInstances.EnterSteamIDMenu.SetToNewInstance();
-            ModdedInterfaceInstances.ExtractMod.SetToNewInstance();
-            ModdedInterfaceInstances.DeveloperModeHelp.SetToNewInstance();
-            ModdedInterfaceInstances.ModConfig.SetToNewInstance();
-            ModdedInterfaceInstances.ModConfigList.SetToNewInstance();
-            ModdedInterfaceInstances.CreateMod.SetToNewInstance();
-            ModdedInterfaceInstances.Progress.SetToNewInstance();
-            ModdedInterfaceInstances.DownloadProgress.SetToNewInstance();
+            ModdedInterfaceInstances.ModsMenu.ReplaceInfoInstance();
+            ModdedInterfaceInstances.LoadMods.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModSources.ReplaceInfoInstance();
+            ModdedInterfaceInstances.BuildMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ErrorMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModBrowser.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModInfo.ReplaceInfoInstance();
+            ModdedInterfaceInstances.UpdateMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.InfoMessage.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModPacksMenu.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ExtractMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.DeveloperModeHelp.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModConfig.ReplaceInfoInstance();
+            ModdedInterfaceInstances.ModConfigList.ReplaceInfoInstance();
+            ModdedInterfaceInstances.CreateMod.ReplaceInfoInstance();
+            ModdedInterfaceInstances.Progress.ReplaceInfoInstance();
+            ModdedInterfaceInstances.DownloadProgress.ReplaceInfoInstance();
         }
 
         private static void TagRemovalInitializationApplicator(ILContext il)
@@ -455,20 +453,6 @@ namespace BetterModList
             c.Index++;
             c.Emit(OpCodes.Pop);
             c.Emit(OpCodes.Ldc_R4, 45f + extended);
-        }
-
-        public void IntermediateLanguageHook(MethodInfo method, string modifyingName)
-        {
-            Delegate @delegate = Delegate.CreateDelegate(typeof(ILContext.Manipulator), GetType(), modifyingName);
-            DelegatesToRemove.Add((method, @delegate));
-            HookEndpointManager.Modify(method, @delegate);
-        }
-
-        public static void DetourHook(MethodInfo method, MethodInfo modifyingMethod)
-        {
-            Hook hook = new Hook(method, modifyingMethod);
-            DetoursToRemove.Add(hook);
-            hook.Apply();
         }
     }
 }

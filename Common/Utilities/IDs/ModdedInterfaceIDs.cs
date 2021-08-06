@@ -13,13 +13,10 @@
         public const int ReloadModsID = 10006;
         public const int ModBrowserID = 10007;
         public const int ModInfoID = 10008;
-        public const int ManagePublishedID = 10011;
         public const int UpdateMessageID = 10012;
         public const int InfoMessageID = 10013;
-        public const int EnterPassPhraseMenuID = 10015;
         public const int ModPacksMenuID = 10016;
         public const int ModLoaderSettingsID = 10017;
-        public const int EnterSteamIDMenuID = 10018;
         public const int ExtractModID = 10019;
         public const int DownloadProgressID = 10020;
         public const int DeveloperModeHelpID = 10022;
