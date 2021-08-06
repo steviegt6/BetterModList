@@ -1,35 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using BetterModList.Common.Utilities;
-using BetterModList.Common.Utilities.IDs;
-using BetterModList.Content.UI.Container;
-using BetterModList.Content.UI.Elements;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using MonoMod.RuntimeDetour.HookGen;
-using Terraria;
-using Terraria.GameContent.UI.Elements;
-using Terraria.Localization;
-using Terraria.ModLoader;
-using Terraria.ModLoader.Core;
-using Terraria.ModLoader.UI;
-using Terraria.UI;
-using Terraria.UI.Chat;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib;
 
 namespace BetterModList
 {
-    public class BetterModList : Mod
+    public class BetterModList : TomatoMod
     {
-        private static readonly Assembly TerrariaAssembly = typeof(Main).Assembly;
-        private static readonly List<(MethodInfo, Delegate)> DelegatesToRemove = new List<(MethodInfo, Delegate)>();
-        private static readonly List<Hook> DetoursToRemove = new List<Hook>();
+        /*private static readonly Assembly TerrariaAssembly = typeof(Main).Assembly;
 
         public override void Load()
         {
@@ -453,6 +428,6 @@ namespace BetterModList
             c.Index++;
             c.Emit(OpCodes.Pop);
             c.Emit(OpCodes.Ldc_R4, 45f + extended);
-        }
+        }*/
     }
 }
