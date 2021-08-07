@@ -5,12 +5,6 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BetterModList", "BetterModList.csproj", "{79F72615-0E75-44F0-8095-59C049C396C0}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{06A8D898-4B44-4CD3-A58D-054239589377}"
-	ProjectSection(SolutionItems) = preProject
-		build.txt = build.txt
-		description.txt = description.txt
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TomatoLib", "TomatoLib\TomatoLib.csproj", "{22A944D8-593E-441E-A2CC-92B211F74DE9}"
 EndProject
 Global
