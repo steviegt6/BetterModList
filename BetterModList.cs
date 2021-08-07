@@ -67,16 +67,6 @@ namespace BetterModList
                     nameof(TagRemovalModDrawApplicator));
 
                 DetourHook(
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
-                        .GetCachedMethod("Recalculate"),
-                    GetType().GetCachedMethod(nameof(ReplaceRecalculationSizingOfEnabledText)));
-
-                DetourHook(
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
-                        .GetCachedMethod("DrawEnabledText"),
-                    GetType().GetCachedMethod(nameof(ReplaceEnabledTextDrawing)));
-
-                DetourHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
                     GetType().GetCachedMethod(nameof(AppendHomepageLinkAndMessWithInitialization)));
 
@@ -205,20 +195,6 @@ namespace BetterModList
             c.GotoNext(x => x.MatchStfld("Terraria.ModLoader.UI.UIModItem", "_keyImage"));
             c.Index++;
             c.RemoveRange(18);
-        }
-
-        private static void ReplaceRecalculationSizingOfEnabledText(Action<UIElement> orig, UIElement self)
-        {
-            orig(self);
-
-            Vector2 enabledSize =
-                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Enabled")).X, 16f);
-            Vector2 disabledSize =
-                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Disabled")).X, 16f);
-            Vector2 balancedSize = new Vector2(Math.Max(enabledSize.X, disabledSize.X), 16f);
-
-            self.Width.Set(balancedSize.X + self.PaddingLeft + self.PaddingRight, 0f);
-            self.Height.Set(balancedSize.Y + self.PaddingTop + self.PaddingBottom, 0f);
         }
 
         private static void ReplaceEnabledTextDrawing(UIElement self, SpriteBatch spriteBatch)
