@@ -197,45 +197,6 @@ namespace BetterModList
             c.RemoveRange(18);
         }
 
-        private static void ReplaceEnabledTextDrawing(UIElement self, SpriteBatch spriteBatch)
-        {
-            Vector2 enabledSize =
-                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Enabled")).X, 16f);
-            Vector2 disabledSize =
-                new Vector2(Main.fontMouseText.MeasureString(Language.GetTextValue("GameUI.Disabled")).X, 16f);
-            string text = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
-                .GetCachedProperty("DisplayText")
-                .GetValue<string>(self);
-            Vector2 textDims = Main.fontMouseText.MeasureString(text);
-            Vector2 drawPos = self.GetDimensions().Center() - textDims / 2f;
-
-            if (!enabledSize.X.Equals(disabledSize.X))
-            {
-                float largeSize;
-                float smallSize;
-                bool enabledLarge = enabledSize.X > disabledSize.X;
-
-                if (enabledLarge)
-                {
-                    largeSize = enabledSize.X;
-                    smallSize = disabledSize.X;
-                }
-                else
-                {
-                    largeSize = disabledSize.X;
-                    smallSize = enabledSize.X;
-                }
-
-                if (text == Language.GetTextValue("GameUI.Enabled") && !enabledLarge ||
-                    text != Language.GetTextValue("GameUI.Enabled") && enabledLarge)
-                    drawPos.X += (largeSize - smallSize) / 2f;
-            }
-
-            Utils.DrawBorderString(spriteBatch, text, drawPos,
-                (Color) TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModStateText")
-                    .GetCachedProperty("DisplayColor").GetValue(self));
-        }
-
         private static void AppendHomepageLinkAndMessWithInitialization(Action<UIElement> orig, UIElement self)
         {
             orig(self);
