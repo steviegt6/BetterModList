@@ -1,5 +1,6 @@
 using BetterModList.Common.Utilities.IDs;
 using Terraria.Localization;
+using Terraria.ModLoader;
 using TomatoLib;
 using TomatoLib.Core.Utilities.Extensions;
 
@@ -11,7 +12,18 @@ namespace BetterModList
         {
             base.Load();
 
+            MonoModHooks.RequestNativeAccess();
+
+            // Repair menus not getting recreated during localization changes.
             LanguageManager.Instance.OnLanguageChanged += ReInitializeStaticModLoaderUserInterfaces;
+        }
+
+        public override void PostSetupContent()
+        {
+            base.PostSetupContent();
+
+            // Create new instance in PostSetupContent to ensure patches are applied.
+            ModdedInterfaceInstances.ModsMenu.ReplaceInfoInstance();
         }
 
         public override void Unload()
@@ -36,7 +48,6 @@ namespace BetterModList
             ModdedInterfaceInstances.InfoMessage.ReplaceInfoInstance();
             ModdedInterfaceInstances.ModPacksMenu.ReplaceInfoInstance();
             ModdedInterfaceInstances.ExtractMod.ReplaceInfoInstance();
-            ModdedInterfaceInstances.DeveloperModeHelp.ReplaceInfoInstance();
             ModdedInterfaceInstances.ModConfig.ReplaceInfoInstance();
             ModdedInterfaceInstances.ModConfigList.ReplaceInfoInstance();
             ModdedInterfaceInstances.CreateMod.ReplaceInfoInstance();
@@ -50,14 +61,6 @@ namespace BetterModList
             try
             {
                 MonoModHooks.RequestNativeAccess();
-
-                IntermediateLanguageHook(
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods").GetCachedMethod("OnInitialize"),
-                    nameof(TagRemovalInitializationApplicator));
-
-                IntermediateLanguageHook(
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods").GetCachedMethod("Draw"),
-                    nameof(TagRemovalDrawApplicator));
 
                 IntermediateLanguageHook(
                     TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIModItem").GetCachedMethod("OnInitialize"),
@@ -91,100 +94,6 @@ namespace BetterModList
                     "\nPlease report this issue to the developer and disable the mod for the time being." +
                     $"\n\n\nOriginal stack-trace: {e}");
             }
-        }
-
-        private static void TagRemovalInitializationApplicator(ILContext il)
-        {
-            // match field Terraria.ModLoader.UI.UIMods::_categoryButtons
-            // ldc.i4.3
-            // index->
-            // into blt IL_jump
-            // end loop
-            // index->
-            // exit loop
-            // apply extra code
-
-            ILCursor c = new ILCursor(il);
-            c.GotoNext(x => x.MatchLdfld("Terraria.ModLoader.UI.UIMods", "_categoryButtons"));
-            c.GotoNext(x => x.MatchLdcI4(3));
-            c.Index += 3;
-
-            c.Emit(OpCodes.Ldarg_0); // this
-
-            c.Emit(OpCodes.Ldfld,
-                TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods")
-                    .GetCachedField("_categoryButtons")); // list
-            c.Emit(OpCodes.Ldloc_3); // element
-            c.EmitDelegate<Action<List<UICycleImage>, UIElement>>((categoryButtons, element) =>
-            {
-                // Type modsUI = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods");
-                // FieldInfo updateNeeded = modsUI.GetCachedField("updateNeeded");
-                UICycleImage image =
-                    new UICycleImage(ModContent.GetTexture("BetterModList/Assets/UI/ChatTagIndicator"), 2, 32, 32, 0, 0)
-                        {CurrentState = 0};
-                image.OnClick += (_, __) =>
-                {
-                    UIModsFieldContainer.DisableChatTags = !UIModsFieldContainer.DisableChatTags;
-                    // updateNeeded.SetValue(ModdedInterfaceInstances.ModsMenu.GetValue(null), true);
-                };
-                image.OnRightClick += (_, __) =>
-                {
-                    UIModsFieldContainer.DisableChatTags = !UIModsFieldContainer.DisableChatTags;
-                    // updateNeeded.SetValue(ModdedInterfaceInstances.ModsMenu, true);
-                };
-                image.Left.Pixels = 36 * 3 + 8;
-                categoryButtons.Add(image);
-                element.Append(image);
-            });
-        }
-
-        private static void TagRemovalDrawApplicator(ILContext il)
-        {
-            ILCursor c = new ILCursor(il);
-            c.GotoNext(x => x.MatchSwitch(out _));
-            c.GotoNext(x => x.MatchLdarg(1));
-            c.Index++;
-
-            c.Emit(OpCodes.Ldarg_0); // this
-            c.Emit(OpCodes.Ldloc_0); // switch case index
-            c.EmitDelegate<Func<object, int, string>>((instance, index) =>
-            {
-                Type menuType = TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.UIMods");
-                Type sortExtensions =
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.ModsMenuSortModesExtensions");
-                Type enabledFilterExtensions =
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.EnabledFilterModesExtensions");
-                Type sideFilterExtensions =
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.ModBrowser.ModSideFilterModesExtensions");
-                Type searchFilterExtensions =
-                    TerrariaAssembly.GetCachedType("Terraria.ModLoader.UI.ModBrowser.SearchFilterModesExtensions");
-
-                switch (index)
-                {
-                    case 0:
-                        return sortExtensions.GetCachedMethod("ToFriendlyString").Invoke(null,
-                            new[] {menuType.GetField("sortMode").GetValue(instance)}) as string;
-
-                    case 1:
-                        return enabledFilterExtensions.GetCachedMethod("ToFriendlyString").Invoke(null,
-                            new[] {menuType.GetField("enabledFilterMode").GetValue(instance)}) as string;
-
-                    case 2:
-                        return sideFilterExtensions.GetCachedMethod("ToFriendlyString").Invoke(null,
-                            new[] {menuType.GetField("modSideFilterMode").GetValue(instance)}) as string;
-
-                    case 3:
-                        return "Toggle chat tags in mod names";
-
-                    case 4:
-                        return searchFilterExtensions.GetCachedMethod("ToFriendlyString").Invoke(null,
-                            new[] {menuType.GetField("searchFilterMode").GetValue(instance)}) as string;
-
-                    default:
-                        return "None";
-                }
-            });
-            c.Emit(OpCodes.Stloc_1);
         }
 
         private static void TagRemovalModDrawApplicator(ILContext il)

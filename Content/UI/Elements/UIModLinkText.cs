@@ -91,7 +91,7 @@ namespace BetterModList.Content.UI.Elements
 
         private string GetDomainText()
         {
-            static string GetPageName(string name) => Language.GetTextValue($"Mods.BetterModsList.UI.{name}");
+            static string GetPageName(string name) => Language.GetTextValue($"Mods.BetterModList.UI.{name}");
 
             string lowercaseLink = Link.ToLower();
 

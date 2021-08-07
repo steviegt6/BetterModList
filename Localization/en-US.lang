@@ -5,3 +5,5 @@ UI.GitHub=GitHub
 UI.YouTube=YouTube
 UI.Twitter=Twitter
 UI.Default=Homepage
+UI.MissingDescription=None
+UI.ToggleChatTags=Toggle chat tags in mod names

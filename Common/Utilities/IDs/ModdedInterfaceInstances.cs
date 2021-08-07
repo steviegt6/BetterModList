@@ -35,8 +35,6 @@ namespace BetterModList.Common.Utilities.IDs
 
         public static FieldInfo ExtractMod => InterfaceType.GetCachedField("extractMod");
 
-        public static FieldInfo DeveloperModeHelp => InterfaceType.GetCachedField("developerModeHelp");
-
         public static FieldInfo ModConfig => InterfaceType.GetCachedField("modConfig");
 
         public static FieldInfo ModConfigList => InterfaceType.GetCachedField("modConfigList");
