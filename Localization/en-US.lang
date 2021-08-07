@@ -7,3 +7,6 @@ UI.Twitter=Twitter
 UI.Default=Homepage
 UI.MissingDescription=None
 UI.ToggleChatTags=Toggle chat tags in mod names
+UI.AuthorStarter=created by
+UI.OriginatedFromWorkshop=Originated from the Steam Workshop
+UI.UnknownOrigin=Unknown place of origin

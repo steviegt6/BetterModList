@@ -18,7 +18,13 @@ namespace BetterModList.Content.UI.Elements
         {
             base.Update(gameTime);
 
-            SetText(UIModsFieldContainer.DisableChatTags ? Names.Item2 : Names.Item1);
+            SetTextIfChanged(UIModsFieldContainer.DisableChatTags ? Names.Item2 : Names.Item1);
+        }
+
+        public void SetTextIfChanged(string text)
+        {
+            if (text != Text)
+                SetText(text);
         }
     }
 }
