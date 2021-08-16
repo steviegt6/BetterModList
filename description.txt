@@ -2,7 +2,11 @@ Better Mod List aims to slightly overhaul and generally improve the tModLoader m
 
 I have a lot more planned, so stay tuned!
 
-v0.1.0.0
+v0.1.1
+* Mod List icons will be resized to fit like on the Workshop menu. This means mods with improper icon sizes will still display.
+* Fixed an issue with icon offsets not being applied when there was no icon, now all mods without icons will receive a filler icon.
+
+v0.1.0
 * Fixed a long-standing tModLoader bug that caused localzation to not be updated in tML's UIs when changing languages.
 * Added a toggle for chat tags in the Mods menu.
 * Homepage links can now be seen on the Mods menu.

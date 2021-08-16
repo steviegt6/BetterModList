@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using BetterModList.Content.UI.Elements;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using ReLogic.Content;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
@@ -38,6 +41,7 @@ namespace BetterModList.Content.Patches
             ILCursor c = new(il);
             TomatoMod mod = ModContent.GetInstance<BetterModList>();
 
+            ForceModIcon(c, mod);
             ReplaceModNameDisplay(c, mod);
             RemoveSourceKey(c, mod);
         }
@@ -148,6 +152,59 @@ namespace BetterModList.Content.Patches
              * 4. IL_04f7: call instance void Terraria.UI.UIElement::Append(class Terraria.UI.UIElement)
              * 1-4 ^^ all removed.
              */
+        }
+
+        private static void ForceModIcon(ILCursor c, TomatoMod mod)
+        {
+            // TODO: Convert to detour?... idk
+            /* GOAL: Force mods to use an icon.
+             * Steps:
+             *  1. Insert out code, no jumping needed.
+             */
+
+            c.Emit(OpCodes.Ldarg_0);
+
+            c.EmitDelegate<Action<UIElement>>(modItem =>
+            {
+                Type modItemType = Terraria.GetCachedType("Terraria.ModLoader.UI.UIModItem");
+                Type localModType = Terraria.GetCachedType("Terraria.ModLoader.Core.LocalMod");
+
+                TmodFile file = localModType.GetCachedField("modFile")
+                    .GetValue<TmodFile>(modItemType.GetCachedField("_mod").GetValue(modItem));
+
+                bool carryOutIcon = true;
+
+                UIImage modIcon = new(ModContent.Request<Texture2D>("BetterModList/Assets/UI/NoIcon", AssetRequestMode.ImmediateLoad))
+                {
+                    Left = {Percent = 0f},
+                    Top = {Percent = 0f},
+                    ScaleToFit = true,
+                    Width = {Pixels = 80f},
+                    Height = {Percent = 80f}
+                };
+
+                if (file.HasFile("icon.png"))
+                {
+                    using (file.Open())
+                    using (Stream stream = file.GetStream("icon.png"))
+                    {
+                        Texture2D icon = Main.Assets.CreateUntracked<Texture2D>(stream, ".png").Value;
+
+                        modIcon.SetImage(icon);
+
+                        if (icon.Width == 80 && icon.Height == 80)
+                            carryOutIcon = false;
+                    }
+                }
+
+
+                if (!carryOutIcon) 
+                    return;
+
+                modItemType.GetCachedField("_modIconAdjust").SetValue(modItem,
+                    modItemType.GetCachedField("_modIconAdjust").GetValue<int>(modItem) + 85);
+                modItem.Append(modIcon);
+            });
         }
 
         private static void OnInitializeDetour(Action<UIElement> orig, UIElement self)
