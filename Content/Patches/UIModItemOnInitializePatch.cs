@@ -41,7 +41,7 @@ namespace BetterModList.Content.Patches
             ILCursor c = new(il);
             TomatoMod mod = ModContent.GetInstance<BetterModList>();
 
-            ForceModIcon(c, mod);
+            ForceModIcon(c);
             ReplaceModNameDisplay(c, mod);
             RemoveSourceKey(c, mod);
         }
@@ -154,7 +154,7 @@ namespace BetterModList.Content.Patches
              */
         }
 
-        private static void ForceModIcon(ILCursor c, TomatoMod mod)
+        private static void ForceModIcon(ILCursor c)
         {
             // TODO: Convert to detour?... idk
             /* GOAL: Force mods to use an icon.
