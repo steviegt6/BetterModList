@@ -17,8 +17,8 @@ using Terraria.ModLoader.Core;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
 using TomatoLib;
+using TomatoLib.Common.Utilities.Extensions;
 using TomatoLib.Content.UI.Elements;
-using TomatoLib.Core.Utilities.Extensions;
 
 namespace BetterModList.Content.Patches
 {

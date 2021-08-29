@@ -4,7 +4,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.UI;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList.Content.Patches
 {

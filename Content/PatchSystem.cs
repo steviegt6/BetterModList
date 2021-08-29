@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ModLoader;
 using TomatoLib;
-using TomatoLib.Core.MonoModding;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList.Content
 {

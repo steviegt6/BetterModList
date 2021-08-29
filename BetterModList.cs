@@ -2,7 +2,7 @@ using BetterModList.Common.Utilities.IDs;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using TomatoLib;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList
 {

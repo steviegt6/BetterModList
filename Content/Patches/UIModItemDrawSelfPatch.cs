@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using TomatoLib;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList.Content.Patches
 {

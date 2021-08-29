@@ -6,7 +6,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TomatoLib;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList.Content.Patches
 {
@@ -65,30 +65,15 @@ namespace BetterModList.Content.Patches
                 MethodInfo sideString = sideExtensions.GetCachedMethod("ToFriendlyString");
                 MethodInfo searchString = searchExtensions.GetCachedMethod("ToFriendlyString");
 
-                switch (index)
+                return index switch
                 {
-                    case 1:
-                        return sortString.Invoke(null,
-                            new[] {menuType.GetCachedField("sortMode").GetValue(instance)}) as string;
-
-                    case 3:
-                        return enabledString.Invoke(null,
-                            new[] { menuType.GetCachedField("enabledFilterMode").GetValue(instance) }) as string;
-
-                    case 5:
-                        return sideString.Invoke(null,
-                            new[] { menuType.GetCachedField("modSideFilterMode").GetValue(instance) }) as string;
-
-                    case 6:
-                        return Language.GetTextValue("Mods.BetterModList.UI.ToggleChatTags");
-
-                    case 7:
-                        return searchString.Invoke(null,
-                            new[] { menuType.GetCachedField("searchFilterMode").GetValue(instance) }) as string;
-
-                    default:
-                        return Language.GetTextValue("Mods.BetterModList.UI.MissingDescription");
-                }
+                    1 => sortString.Invoke(null, new[] {menuType.GetCachedField("sortMode").GetValue(instance)}) as string,
+                    3 => enabledString.Invoke(null, new[] {menuType.GetCachedField("enabledFilterMode").GetValue(instance)}) as string,
+                    5 => sideString.Invoke(null, new[] {menuType.GetCachedField("modSideFilterMode").GetValue(instance)}) as string,
+                    6 => Language.GetTextValue("Mods.BetterModList.UI.ToggleChatTags"),
+                    7 => searchString.Invoke(null, new[] {menuType.GetCachedField("searchFilterMode").GetValue(instance)}) as string,
+                    _ => Language.GetTextValue("Mods.BetterModList.UI.MissingDescription")
+                };
             });
 
             // set the mouse text field to our returned field

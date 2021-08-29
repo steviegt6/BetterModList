@@ -1,0 +1,17 @@
+Mods: {
+	BetterModList: {
+		UI: {
+			Discord: Discord
+			Forums: Forums
+			GitHub: GitHub
+			YouTube: YouTube
+			Twitter: Twitter
+			Default: Homepage
+			MissingDescription: None
+			ToggleChatTags: Toggle chat tags in mod names
+			AuthorStarter: created by
+			OriginatedFromWorkshop: Originated from the Steam Workshop
+			UnknownOrigin: Unknown place of origin
+		}
+	}
+}

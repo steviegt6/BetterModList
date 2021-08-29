@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Terraria.ModLoader;
-using TomatoLib.Core.Utilities.Extensions;
+using TomatoLib.Common.Utilities.Extensions;
 
 namespace BetterModList.Common.Utilities.IDs
 {
