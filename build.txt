@@ -1,6 +1,6 @@
 displayName = Better Mod List
 author = Tomat
-version = 0.1.5
+version = 0.1.6
 modReferences = TomatoLib
 sortAfter = TomatLib
 buildIgnore = .git/*, .vs/*, bin/*, obj/*, TomatoLib/*, workshop.json
