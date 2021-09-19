@@ -2,5 +2,12 @@
   "WorkshopPublishedVersion": 1,
   "ContentType": "Mod",
   "SteamEntryId": 2568074825,
+  "Tags": [
+    "quality of life",
+    "tweaks",
+    "utility",
+    "interface",
+    "clientside-only"
+  ],
   "Publicity": 2
 }

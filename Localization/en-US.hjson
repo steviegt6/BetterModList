@@ -13,5 +13,31 @@ Mods: {
 			OriginatedFromWorkshop: Originated from the Steam Workshop
 			UnknownOrigin: Unknown place of origin
 		}
+
+		WorkshopTags: {
+			QualityOfLife: Quality-of-Life
+			Tweaks: Tweaks
+			Utility: Utility
+			NewContent: New Content
+			TotalConversion: Total Conversion
+			WorldGen: World Generation
+			Interface: Interface Changes
+			Localization: Localization
+			ClientSideOnly: Client-Side
+			ServerSideOnly: Server-Side
+			Library: Library
+
+			QualityOfLifeDescription: Adds quality-of-life changes for playability.
+			TweaksDescription: Tweaks existing features.
+			UtilityDescription: Miscellaneous utilities.
+			NewContentDescription: Adds brand-new content to the game.
+			TotalConversionDescription: Overhauls one or more features.
+			WorldGenDescription: Adds new world generation or changes existing world generation.
+			InterfaceDescription: Adds or changes the UI.
+			LocalizationDescription: Adds or modifies localization entries.
+			ClientSideOnlyDescription: Only needs to be loaded on the client.
+			ServerSideOnlyDescription: Only needs to be loaded on the server.
+			LibraryDescription: Provides useful features for other modders.
+		}
 	}
 }
