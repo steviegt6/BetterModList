@@ -179,8 +179,8 @@ namespace BetterModList.Content.Patches
                     Left = {Percent = 0f},
                     Top = {Percent = 0f},
                     ScaleToFit = true,
-                    Width = {Pixels = 80f},
-                    Height = {Percent = 80f}
+                    MaxWidth = {Pixels = 80f, Percent = 0f},
+                    MaxHeight = {Pixels = 80f, Percent = 0f}
                 };
 
                 if (file.HasFile("icon.png"))
