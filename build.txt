@@ -1,8 +1,8 @@
 displayName = Better Mod List
 author = Tomat
-version = 0.1.9
+version = 0.1.9.1
 modReferences = TomatoLib
 sortAfter = TomatLib
 buildIgnore = .git/*, .vs/*, bin/*, obj/*, TomatoLib/*, workshop.json
-homepage = https://discord.com/invite/qrZ4Bpz
+homepage = https://discord.gg/Y8bvvqyFQw
 side = Client
